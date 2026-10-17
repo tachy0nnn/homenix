@@ -13,6 +13,7 @@ in
   networking.networkmanager = {
     enable = true;
     dns = "none";
+    wifi.powersave = false;
   };
 
   services.dnscrypt-proxy = {
@@ -42,9 +43,32 @@ in
     };
   };
   systemd.services.dnscrypt-proxy.serviceConfig.StateDirectory = StateDirectory;
+
+  boot.kernelModules = [ "tcp_bbr" ];
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = 1;
     "net.ipv6.conf.all.forwarding" = 1;
+
+    # bbr
+    "net.core.default_qdisc" = "fq";
+    "net.ipv4.tcp_congestion_control" = "bbr";
+
+    # ref: https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency
+    "net.ipv4.tcp_collapse_max_bytes" = 6291456;
+    "net.ipv4.tcp_notsent_lowat" = 131072;
+    "net.ipv4.tcp_ecn" = 1;
+    "net.ipv4.tcp_slow_start_after_idle" = 0;
+
+    "net.core.rmem_max" = 16777216;
+    "net.core.wmem_max" = 16777216;
+    "net.core.rmem_default" = 1048576;
+    "net.core.wmem_default" = 1048576;
+    "net.ipv4.tcp_rmem" = "4096 1048576 16777216";
+    "net.ipv4.tcp_wmem" = "4096 65536 16777216";
+
+    "net.ipv4.neigh.default.gc_thresh1" = 1024;
+    "net.ipv4.neigh.default.gc_thresh2" = 2048;
+    "net.ipv4.neigh.default.gc_thresh3" = 4096;
   };
 
   networking.firewall = {

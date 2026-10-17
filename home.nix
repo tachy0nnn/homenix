@@ -38,7 +38,7 @@
     };
 
     "org/gnome/settings-daemon/plugins/media-keys" = {
-      mic-mute = [ "<Ctrl><Shift>m" ]; # Or "<Ctrl><Shift>m", "Pause", "F9", etc.
+      mic-mute = [ "<Ctrl><Shift>m" ];
     };
   };
 
