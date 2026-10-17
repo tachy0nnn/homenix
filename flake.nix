@@ -10,6 +10,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri = {
+      url = "github:epireyn/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     minegrub-world-sel-theme = {
       url = "github:Lxtharia/minegrub-world-sel-theme";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,6 +39,7 @@
       minegrub-world-sel-theme,
       nix-index-database,
       nix-flatpak,
+      niri,
       ...
     }@inputs:
     let
@@ -51,6 +57,8 @@
         specialArgs = { inherit inputs; };
         modules = [
           { nixpkgs.overlays = [ overlay-unstable ]; }
+          niri.nixosModules.niri
+
           ./configuration.nix
           minegrub-world-sel-theme.nixosModules.default
           nix-index-database.nixosModules.nix-index

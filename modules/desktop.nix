@@ -1,6 +1,15 @@
 { pkgs, ... }:
 
 {
+  programs.niri.enable = true;
+  environment.systemPackages = with pkgs; [
+    alacritty # mod + t
+    fuzzel # mod + d
+    swaylock # super + Alt + L
+    #waybar # status bar
+    xwayland-satellite
+  ];
+
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   environment.gnome.excludePackages = with pkgs; [

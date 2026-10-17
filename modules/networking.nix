@@ -54,7 +54,6 @@ in
     "net.ipv4.tcp_congestion_control" = "bbr";
 
     # ref: https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency
-    "net.ipv4.tcp_collapse_max_bytes" = 6291456;
     "net.ipv4.tcp_notsent_lowat" = 131072;
     "net.ipv4.tcp_ecn" = 1;
     "net.ipv4.tcp_slow_start_after_idle" = 0;
@@ -74,7 +73,7 @@ in
   networking.firewall = {
     enable = true;
     checkReversePath = "loose";
-    trustedInterfaces = [ "clash0" ];
+    trustedInterfaces = [ "Meta" ];
   };
 
   programs.clash-verge = {
