@@ -1,6 +1,5 @@
 {
   pkgs,
-  pkgs-unstable,
   lib,
   ...
 }:
@@ -47,7 +46,7 @@
     vesktop.enable = true;
     zed-editor = {
       enable = true;
-      package = pkgs-unstable.zed-editor;
+      package = pkgs.unstable.zed-editor;
       extraPackages = with pkgs; [
         nixd
         nil

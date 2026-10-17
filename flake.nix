@@ -15,13 +15,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Pre-built nix-index database for instant comma & command-not-found execution
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Declarative Flatpak management
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak";
     };
@@ -40,16 +38,19 @@
     }@inputs:
     let
       system = "x86_64-linux";
-      pkgs-unstable = import nixpkgs-unstable {
-        inherit system;
-        config.allowUnfree = true;
+      overlay-unstable = final: prev: {
+        unstable = import nixpkgs-unstable {
+          inherit system;
+          config.allowUnfree = true;
+        };
       };
     in
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs pkgs-unstable; };
+        specialArgs = { inherit inputs; };
         modules = [
+          { nixpkgs.overlays = [ overlay-unstable ]; }
           ./configuration.nix
           minegrub-world-sel-theme.nixosModules.default
           nix-index-database.nixosModules.nix-index
@@ -58,7 +59,6 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit pkgs-unstable; };
             home-manager.users."yon" = import ./home.nix;
           }
         ];
