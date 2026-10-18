@@ -28,6 +28,16 @@
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak";
     };
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -40,14 +50,27 @@
       nix-index-database,
       nix-flatpak,
       niri,
+      treefmt-nix,
+      git-hooks,
       ...
     }@inputs:
     let
       system = "x86_64-linux";
-      overlay-unstable = final: prev: {
+      overlay-unstable = _final: _prev: {
         unstable = import nixpkgs-unstable {
           inherit system;
           config.allowUnfree = true;
+        };
+      };
+
+      # tooling for working on this repo
+      pkgs = nixpkgs.legacyPackages.${system};
+      treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+      pre-commit = git-hooks.lib.${system}.run {
+        src = ./.;
+        hooks.treefmt = {
+          enable = true;
+          package = treefmtEval.config.build.wrapper;
         };
       };
     in
@@ -70,6 +93,37 @@
             home-manager.users."yon" = import ./home.nix;
           }
         ];
+      };
+
+      # nix fmt formats the whole repo, nix flake check verifies formatting
+      formatter.${system} = treefmtEval.config.build.wrapper;
+      checks.${system}.formatting = treefmtEval.config.build.check self;
+
+      # nix develop (or direnv) in this repo: formatter, linters, store tools
+      devShells.${system}.default = pkgs.mkShell {
+        inherit (pre-commit) shellHook;
+        packages = [
+          treefmtEval.config.build.wrapper
+          pkgs.statix
+          pkgs.deadnix
+          pkgs.nixfmt
+          pkgs.nix-tree
+          pkgs.nix-du
+          pkgs.nix-melt
+          pkgs.cachix
+        ];
+      };
+
+      # `nix flake init -t ~/homenix#rust` in an empty project directory
+      templates.rust = {
+        path = ./templates/rust;
+        description = "Rust project: rust-overlay + crane + treefmt-nix + git-hooks";
+        welcomeText = ''
+          rust template created wuw!!
+          newxt: git init, cargo init, git add -A, then direnv allow (or nix develop)!!
+          seeww docs/rust-nix-guide.md in homenix repo for the full workflow >,<!!
+          goowd luwk cutie!!! <3
+        '';
       };
     };
 }
