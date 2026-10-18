@@ -34,6 +34,7 @@
   };
 
   boot.kernelPackages = pkgs.linuxPackages_zen; # personal thing
+  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
   fileSystems."/".options = [
     "compress=zstd"
     "noatime"
