@@ -78,6 +78,10 @@
   programs.nh = {
     enable = true;
     flake = "/home/yon/homenix";
+    clean = {
+      enable = true;
+      extraArgs = "--keep-since 7d --keep 5";
+    };
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -86,13 +90,12 @@
       "nix-command"
       "flakes"
     ];
-    auto-optimise-store = true;
+    # extra-substituters = [ "https://nix-community.cachix.org" ];
+    # extra-trusted-public-keys = [
+    #   "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    # ];
   };
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
-  };
+  nix.optimise.automatic = true;
 
   system.stateVersion = "26.05";
 }

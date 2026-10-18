@@ -9,16 +9,22 @@
   home.packages = with pkgs; [
     ripgrep
     fd
-    htop
     btop
     eza
     bat
     wl-clipboard
     jq
-    nil
-    nurl
-    treefmt
     devenv
+    unstable.mold
+
+    # nix tooling (awesome-nix)
+    nixfmt
+    statix
+    deadnix
+    nix-tree # browse the dependency graph of a derivation
+    nix-du # see which gc roots eat disk space
+    nix-melt # flake.lock viewer
+    cachix
   ];
 
   dconf.settings = {
@@ -49,7 +55,6 @@
       package = pkgs.unstable.zed-editor;
       extraPackages = with pkgs; [
         nixd
-        nil
         nixfmt
         package-version-server
       ];
