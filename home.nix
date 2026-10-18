@@ -16,6 +16,7 @@
     jq
     devenv
     unstable.mold
+    nil
 
     # nix tooling (awesome-nix)
     nixfmt
