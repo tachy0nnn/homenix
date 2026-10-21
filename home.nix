@@ -5,6 +5,7 @@
 }:
 
 {
+  imports = [ ./ship.nix ];
   home.stateVersion = "26.05";
   home.packages = with pkgs; [
     ripgrep
@@ -19,6 +20,7 @@
     nil
     nixd
     spotify-spotx
+    gh
 
     # nix tooling (awesome-nix)
     nixfmt
