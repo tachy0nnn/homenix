@@ -10,6 +10,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    spotx-nix = {
+      url = "github:SpotX-Official/SpotX-Nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     niri = {
       url = "github:epireyn/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -79,7 +84,12 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
-          { nixpkgs.overlays = [ overlay-unstable ]; }
+          {
+            nixpkgs.overlays = [
+              overlay-unstable
+              inputs.spotx-nix.overlays.default
+            ];
+          }
           niri.nixosModules.niri
 
           ./configuration.nix

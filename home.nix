@@ -17,6 +17,8 @@
     devenv
     unstable.mold
     nil
+    nixd
+    spotify-spotx
 
     # nix tooling (awesome-nix)
     nixfmt
@@ -51,6 +53,8 @@
   programs = {
     nix-init.enable = true;
     vesktop.enable = true;
+    obsidian.enable = true;
+    prismlauncher.enable = true;
     zed-editor = {
       enable = true;
       package = pkgs.unstable.zed-editor;

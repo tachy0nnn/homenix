@@ -44,10 +44,13 @@ in
   };
   systemd.services.dnscrypt-proxy.serviceConfig.StateDirectory = StateDirectory;
 
-  boot.kernelModules = [ "tcp_bbr" ];
+  boot.kernelModules = [
+    "tcp_bbr"
+    "tun"
+  ];
   boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = 1;
-    "net.ipv6.conf.all.forwarding" = 1;
+    # "net.ipv4.ip_forward" = 1;
+    # "net.ipv6.conf.all.forwarding" = 1;
 
     # bbr
     "net.core.default_qdisc" = "fq";
@@ -73,7 +76,10 @@ in
   networking.firewall = {
     enable = true;
     checkReversePath = "loose";
-    trustedInterfaces = [ "Meta" ];
+    trustedInterfaces = [
+      "Meta"
+      "radminvpn0"
+    ];
   };
 
   programs.clash-verge = {
