@@ -21,7 +21,6 @@
     nixd
     spotify-spotx
     gh
-    ghostty
 
     # nix tooling (awesome-nix)
     nixfmt

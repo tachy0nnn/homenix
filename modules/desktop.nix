@@ -8,6 +8,7 @@
     swaylock # super + Alt + L
     #waybar # status bar
     xwayland-satellite
+    ghostty
   ];
 
   services.displayManager.gdm.enable = true;
