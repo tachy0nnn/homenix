@@ -44,6 +44,38 @@ in
   };
   systemd.services.dnscrypt-proxy.serviceConfig.StateDirectory = StateDirectory;
 
+  services.dnsmasq = {
+    enable = true;
+    resolveLocalQueries = false; # u already manage nameservers urself
+    settings = {
+      interface = "wlp7s0";
+      except-interface = "lo";
+      bind-dynamic = true; # still works if the dhcp ip changes
+      log-queries = true;
+      filter-AAAA = true; # station only ever gets ipv4 answers
+      log-dhcp = false;
+      no-resolv = true;
+      server = [ "127.0.0.1#53" ]; # forward to dnscrypt-proxy
+      cache-size = 1000;
+
+      address = [
+        # blocks the domain and all its subdomains
+        "/quasar.yandex.ru/192.168.3.77"
+        "/quasar.yandex.net/192.168.3.77"
+        "/scbh.yandex.net/192.168.3.77"
+
+        "/strm.yandex.ru/0.0.0.1"
+        "/rpc.alice.yandex.net/0.0.0.1"
+        "/uniproxy.alice.yandex.net/0.0.0.1"
+        "/alice.yandex.net/0.0.0.1"
+        "/alice-ats.yandex.net/0.0.0.1"
+        "/alice-ats-test.yandex.net/0.0.0.1"
+        # optional: point ur quasar domain at this laptop
+        # "/yourdomain.lan/192.168.3.77"
+      ];
+    };
+  };
+
   boot.kernelModules = [
     "tcp_bbr"
     "tun"
@@ -80,6 +112,15 @@ in
       "Meta"
       "radminvpn0"
     ];
+
+    interfaces."wlp7s0" = {
+      allowedTCPPorts = [
+        80
+        443
+        53
+      ];
+      allowedUDPPorts = [ 53 ];
+    };
   };
 
   programs.clash-verge = {
