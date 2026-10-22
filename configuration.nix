@@ -65,8 +65,6 @@
   programs.nix-ld.enable = true;
   programs.nix-index-database.comma.enable = true;
 
-  virtualisation.docker.enable = true;
-
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
   users.users."yon" = {
@@ -75,7 +73,6 @@
     extraGroups = [
       "networkmanager"
       "wheel"
-      "docker"
     ];
   };
 
