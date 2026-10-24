@@ -1,15 +1,14 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.niri.enable = true;
   environment.systemPackages = with pkgs; [
-    alacritty # mod + t
-    fuzzel # mod + d
-    swaylock # super + Alt + L
-    #waybar # status bar
     xwayland-satellite
-    ghostty
+    ghostty # mod + t
   ];
+
+  # lets swaylock (installed by home-manager) verify your password
+  security.pam.services.swaylock = { };
 
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
@@ -106,4 +105,8 @@
       "AutofillCreditCardEnabled" = false;
     };
   };
+
+  # brave reads managed policies from /etc/brave, not /etc/chromium
+  environment.etc."brave/policies/managed/policy.json".text =
+    builtins.toJSON config.programs.chromium.extraOpts;
 }

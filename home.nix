@@ -5,7 +5,10 @@
 }:
 
 {
-  imports = [ ./ship.nix ];
+  imports = [
+    ./ship.nix
+    ./niri.nix
+  ];
   home.stateVersion = "26.05";
   home.packages = with pkgs; [
     ripgrep
@@ -21,6 +24,7 @@
     nixd
     spotify-spotx
     gh
+    helium
 
     # nix tooling (awesome-nix)
     nixfmt
@@ -54,7 +58,23 @@
 
   programs = {
     nix-init.enable = true;
-    vesktop.enable = true;
+    vesktop = {
+      enable = true;
+      package = lib.makeOverridable (
+        {
+          withSystemVencord ? false,
+        }:
+        pkgs.symlinkJoin {
+          name = "vesktop";
+          paths = [ (pkgs.vesktop.override { inherit withSystemVencord; }) ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/vesktop \
+              --add-flags "--proxy-server=socks5://127.0.0.1:7897"
+          '';
+        }
+      ) { };
+    };
     obsidian.enable = true;
     prismlauncher.enable = true;
     zed-editor = {
@@ -75,6 +95,11 @@
 
     git = {
       enable = true;
+      ignores = [
+        ".direnv"
+        "result"
+      ];
+
       signing = {
         key = "~/.ssh/id_ed25519.pub";
         signByDefault = true;
@@ -137,6 +162,12 @@
     };
 
     fzf.enable = true;
+    eza.enable = true;
+    bat.enable = true;
+    btop.enable = true;
+    fd.enable = true;
+    ripgrep.enable = true;
+    jq.enable = true;
     zoxide.enable = true;
     bash.enable = true;
   };

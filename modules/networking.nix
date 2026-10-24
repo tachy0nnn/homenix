@@ -21,11 +21,8 @@ in
     settings = {
       server_names = [
         "dnscry.pt-moscow-ipv4"
-        "dnscry.pt-moscow-ipv6"
         "dnscry.pt-helsinki-ipv4"
-        "dnscry.pt-helsinki-ipv6"
         "quad9-dnscrypt-ip4-filter-pri"
-        "quad9-dnscrypt-ip6-filter-pri"
       ];
       ipv6_servers = hasIPv6Internet;
       block_ipv6 = !hasIPv6Internet;
@@ -58,7 +55,6 @@ in
 
     # ref: https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency
     "net.ipv4.tcp_notsent_lowat" = 131072;
-    "net.ipv4.tcp_ecn" = 1;
     "net.ipv4.tcp_slow_start_after_idle" = 0;
 
     "net.core.rmem_max" = 16777216;
@@ -67,15 +63,12 @@ in
     "net.core.wmem_default" = 1048576;
     "net.ipv4.tcp_rmem" = "4096 1048576 16777216";
     "net.ipv4.tcp_wmem" = "4096 65536 16777216";
-
-    "net.ipv4.neigh.default.gc_thresh1" = 1024;
-    "net.ipv4.neigh.default.gc_thresh2" = 2048;
-    "net.ipv4.neigh.default.gc_thresh3" = 4096;
   };
 
   networking.firewall = {
     enable = true;
     checkReversePath = "loose";
+    # these interfaces bypass the firewall completely; prefer opening specific ports
     trustedInterfaces = [
       "Meta"
       "radminvpn0"

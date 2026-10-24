@@ -2,7 +2,12 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
@@ -33,6 +38,13 @@
     };
   };
 
+  systemd.services.nix-daemon.environment = {
+    ALL_PROXY = "socks5h://127.0.0.1:7897";
+    all_proxy = "socks5h://127.0.0.1:7897";
+    HTTPS_PROXY = "socks5h://127.0.0.1:7897";
+    https_proxy = "socks5h://127.0.0.1:7897";
+  };
+
   boot.kernelPackages = pkgs.linuxPackages_zen; # personal thing
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
   fileSystems."/".options = [
@@ -56,6 +68,7 @@
 
   boot.initrd.luks.devices."luks-a6b83008-28c3-411a-95c4-6518d6449435".allowDiscards = true;
   services.fstrim.enable = true;
+  services.fwupd.enable = true;
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -92,11 +105,21 @@
       "nix-command"
       "flakes"
     ];
-    # extra-substituters = [ "https://nix-community.cachix.org" ];
-    # extra-trusted-public-keys = [
-    #   "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-    # ];
+    trusted-users = [
+      "root"
+      "@wheel"
+    ];
+    warn-dirty = false;
+    extra-substituters = [ "https://nix-community.cachix.org" ];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
   };
+
+  # pin `nix shell nixpkgs#foo` to the same nixpkgs as the system
+  nix.registry.nixpkgs.flake = inputs.nixpkgs;
+  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+
   nix.optimise.automatic = true;
 
   system.stateVersion = "26.05";

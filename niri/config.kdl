@@ -1,0 +1,148 @@
+// minimal, dark + cutesy niri config ~
+// validate after editing: niri validate
+
+input {
+    keyboard {
+        xkb {
+            layout "us,ru"
+            options "grp:alt_shift_toggle"
+        }
+    }
+    touchpad {
+        tap
+        natural-scroll
+        dwt
+    }
+}
+
+// find ur output name with: niri msg outputs
+// output "DP-1" {
+//     mode "2560x1440@165.000"
+//     scale 1
+// }
+
+layout {
+    gaps 10
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    default-column-width { proportion 0.5; }
+
+    // flat, muted focus ring. no glow, no shadow
+    focus-ring {
+        width 2
+        active-color "#d98cb3"
+        inactive-color "#3a3347"
+    }
+}
+
+overview {
+    backdrop-color "#14101c"
+}
+
+prefer-no-csd
+hotkey-overlay { skip-at-startup; }
+screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
+
+environment {
+    NIXOS_OZONE_WL "1"
+}
+
+// deep plum wallpaper, no image file needed (waybar is started by home-manager)
+spawn-at-startup "swaybg" "-c" "#1a1625"
+
+// soft rounded corners
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+// slightly bouncy springs (damping-ratio below 1.0 = a little bounce)
+animations {
+    workspace-switch {
+        spring damping-ratio=0.8 stiffness=700 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.8 stiffness=700 epsilon=0.0001
+    }
+    window-movement {
+        spring damping-ratio=0.75 stiffness=650 epsilon=0.0001
+    }
+    window-resize {
+        spring damping-ratio=0.85 stiffness=700 epsilon=0.0001
+    }
+}
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    // apps
+    Mod+T { spawn "ghostty"; }
+    Mod+D { spawn "fuzzel"; }
+    Mod+Alt+L { spawn "swaylock"; }
+
+    // windows
+    Mod+Q { close-window; }
+    Mod+O repeat=false { toggle-overview; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+V { toggle-window-floating; }
+    Mod+C { center-column; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+
+    // focus
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+H     { focus-column-left; }
+    Mod+L     { focus-column-right; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+
+    // move
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+L     { move-column-right; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+
+    // workspaces
+    Mod+Page_Down { focus-workspace-down; }
+    Mod+Page_Up   { focus-workspace-up; }
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+
+    // screenshots
+    Print      { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print  { screenshot-window; }
+
+    // audio
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+" "-l" "1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    Ctrl+Shift+M         allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+
+    // bye bye
+    Mod+Shift+E { quit; }
+}

@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    helium.url = "path:./pkgs/helium";
+    helium.inputs.nixpkgs.follows = "nixpkgs";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -88,6 +90,7 @@
             nixpkgs.overlays = [
               overlay-unstable
               inputs.spotx-nix.overlays.default
+              inputs.helium.overlays.default
             ];
           }
           niri.nixosModules.niri
@@ -99,6 +102,7 @@
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
+            home-manager.backupFileExtension = "bak";
             home-manager.useUserPackages = true;
             home-manager.users."yon" = import ./home.nix;
           }
