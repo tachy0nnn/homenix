@@ -6,6 +6,7 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     helium.url = "path:./pkgs/helium";
     helium.inputs.nixpkgs.follows = "nixpkgs";
+    quasar-unlock.url = "github:otomir23/quasar-unlock";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -59,6 +60,7 @@
       niri,
       treefmt-nix,
       git-hooks,
+      quasar-unlock,
       ...
     }@inputs:
     let
@@ -93,6 +95,7 @@
               inputs.helium.overlays.default
             ];
           }
+          quasar-unlock.nixosModules.default
           niri.nixosModules.niri
 
           ./configuration.nix

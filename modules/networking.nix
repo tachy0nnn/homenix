@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  hasIPv6Internet = true;
+  hasIPv6Internet = false;
   StateDirectory = "dnscrypt-proxy";
 in
 {
@@ -45,13 +45,14 @@ in
     "tcp_bbr"
     "tun"
   ];
+
   boot.kernel.sysctl = {
     # "net.ipv4.ip_forward" = 1;
     # "net.ipv6.conf.all.forwarding" = 1;
 
     # bbr
     "net.core.default_qdisc" = "fq";
-    "net.ipv4.tcp_congestion_control" = "bbr";
+    "net.ipv4.tcp_congestion_control" = "cubic";
 
     # ref: https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency
     "net.ipv4.tcp_notsent_lowat" = 131072;
@@ -77,7 +78,7 @@ in
 
   programs.clash-verge = {
     enable = true;
-    tunMode = true;
+    tunMode = false;
     serviceMode = true;
   };
 }

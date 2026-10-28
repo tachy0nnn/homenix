@@ -15,6 +15,14 @@ let
         exit 1
       fi
 
+      untracked=$(git ls-files --others --exclude-standard)
+      if [ -n "$untracked" ]; then
+        echo "refusing to ship: these files are untracked and would be missing from the PR:" >&2
+        echo "$untracked" >&2
+        echo "git add them first (or add them to .gitignore), then run ship again." >&2
+        exit 1
+      fi
+
       git fetch --quiet origin main
       start=$(git branch --show-current)
 
@@ -23,12 +31,6 @@ let
         git switch --quiet --create "$branch"
       else
         branch="$start"
-      fi
-
-      untracked=$(git ls-files --others --exclude-standard)
-      if [ -n "$untracked" ]; then
-        echo "warning: untracked files are NOT included (git add them first):" >&2
-        echo "$untracked" >&2
       fi
 
       if ! git diff --quiet HEAD; then
@@ -60,13 +62,25 @@ let
     name = "landed";
     runtimeInputs = with pkgs; [
       git
+      gh
       gawk
       findutils
     ];
     text = ''
       git switch --quiet main
       git pull --quiet --prune
-      git branch --verbose --verbose | awk '/: gone]/ { print $1 }' | xargs -r git branch --delete --force
+
+      git branch --format='%(refname:short) %(upstream:track)' \
+        | awk '/\[gone\]/ { print $1 }' \
+        | while read -r b; do
+            merged=$(gh pr list --head "$b" --state merged --json number --jq 'length' 2>/dev/null || echo 0)
+            if [ "$merged" -gt 0 ]; then
+              echo "deleting $b (its PR was merged)"
+              git branch --quiet --delete --force "$b"
+            else
+              echo "keeping $b: upstream is gone but no merged PR was found. check it by hand." >&2
+            fi
+          done
     '';
   };
 in

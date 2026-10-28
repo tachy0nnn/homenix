@@ -2,6 +2,7 @@
 
 {
   programs.niri.enable = true;
+  programs.steam.enable = true;
   environment.systemPackages = with pkgs; [
     xwayland-satellite
     ghostty # mod + t
@@ -12,8 +13,18 @@
 
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
+  services.syncthing = {
+    enable = true;
+    package = pkgs.callPackage ../pkgs/syncthing/package.nix { };
+    user = "yon";
+    group = "users";
+    dataDir = "/home/yon";
+    configDir = "/home/yon/.config/syncthing";
+    openDefaultPorts = true;
+  };
+
   environment.gnome.excludePackages = with pkgs; [
-    gnome-contacts # Contacts
+    gnome-contacts # Contactsz
     gnome-weather # Weather
     gnome-clocks # Clocks
     gnome-maps # Maps
@@ -63,6 +74,22 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
+
+  # systemd.services.sober-proxy-override = {
+  #   description = "proxy environment for org.vinegarhq.Sober";
+  #   wantedBy = [ "multi-user.target" ];
+  #   after = [ "network.target" ];
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     RemainAfterExit = true;
+  #     ExecStart = ''
+  #       ${pkgs.flatpak}/bin/flatpak override --system \
+  #         --env=ALL_PROXY=socks5h://127.0.0.1:7897 \
+  #         --env=all_proxy=socks5h://127.0.0.1:7897 \
+  #         org.vinegarhq.Sober
+  #     '';
+  #   };
+  # };
 
   programs.chromium = {
     enable = true;

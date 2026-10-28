@@ -15,7 +15,22 @@
     ./modules/desktop.nix
     ./modules/networking.nix
     ./modules/nvidia.nix
+    ./modules/perf.nix
   ];
+
+  users.groups.plugdev = { };
+
+  services.udev.packages = [
+    (pkgs.writeTextFile {
+      name = "station-mini-root-udev-rules";
+      destination = "/etc/udev/rules.d/70-station-mini-root.rules";
+      text = ''
+        SUBSYSTEM=="usb", ATTR{idVendor}=="1b8e", ATTR{idProduct}=="c003", MODE="0660", GROUP="plugdev", TAG+="uaccess"
+        SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", ATTR{idProduct}=="4e26", MODE="0660", GROUP="plugdev", TAG+="uaccess"
+      '';
+    })
+  ];
+
   boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub = {
@@ -45,7 +60,7 @@
     https_proxy = "socks5h://127.0.0.1:7897";
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_zen; # personal thing
+  boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
   fileSystems."/".options = [
     "compress=zstd"
@@ -77,6 +92,7 @@
 
   programs.nix-ld.enable = true;
   programs.nix-index-database.comma.enable = true;
+  documentation.nixos.enable = false;
 
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -87,6 +103,7 @@
       "networkmanager"
       "wheel"
     ];
+    homeMode = "711";
   };
 
   programs.firefox.enable = true;

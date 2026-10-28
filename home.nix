@@ -56,8 +56,41 @@
     };
   };
 
+  # notifications: niri ships no notification daemon, so without this they vanish
+  services.mako = {
+    enable = true;
+    settings = {
+      background-color = "#2B2930";
+      text-color = "#E6E0E9";
+      border-color = "#d98cb3";
+      border-size = 2;
+      border-radius = 12;
+      font = "Roboto 11";
+      width = 360;
+      margin = "10";
+      padding = "12";
+      default-timeout = 5000;
+      anchor = "top-right";
+    };
+  };
+
+  # keepassxc starts with the niri/gnome session (systemd user service, not an xdg autostart file)
+  systemd.user.services.keepassxc = {
+    Unit = {
+      Description = "KeePassXC password manager";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.keepassxc}/bin/keepassxc";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
   programs = {
     nix-init.enable = true;
+    keepassxc.enable = true;
     vesktop = {
       enable = true;
       package = lib.makeOverridable (
