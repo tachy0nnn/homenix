@@ -25,11 +25,28 @@ let
         niri validate --config ${niriConfigFile}
         cp ${niriConfigFile} $out
       '';
+
+  powerMenu = pkgs.writeShellApplication {
+    name = "power-menu";
+    text = ''
+      choice=$(printf '%s\n' lock logout reboot bios shutdown \
+        | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt "power ~ ")
+
+      case "$choice" in
+        lock)     ${pkgs.swaylock}/bin/swaylock -f ;;
+        logout)   niri msg action quit --skip-confirmation ;;
+        reboot)   systemctl reboot ;;
+        bios)     systemctl reboot --firmware-setup ;;
+        shutdown) systemctl poweroff ;;
+      esac
+    '';
+  };
 in
 {
   home.packages = with pkgs; [
     swaybg
     roboto
+    powerMenu
   ];
 
   fonts.fontconfig.enable = true;

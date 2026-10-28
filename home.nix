@@ -193,6 +193,27 @@ in
       nix-direnv.enable = true;
     };
 
+    starship = {
+      enable = true;
+      enableBashIntegration = true;
+      settings = {
+        add_newline = false;
+        format = "$directory$git_branch$git_status$character";
+        directory = {
+          truncation_length = 3;
+          style = "bold #${palette.fg}";
+        };
+        git_branch = {
+          symbol = " ";
+          style = "#${palette.accent-alt}";
+        };
+        character = {
+          success_symbol = "[ᓚᘏᗢ](bold #${palette.accent})";
+          error_symbol = "[ᓚᘏᗢ](bold #${palette.accent})";
+        };
+      };
+    };
+
     fzf.enable = true;
     eza.enable = true;
     bat.enable = true;

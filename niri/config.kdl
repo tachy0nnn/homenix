@@ -78,6 +78,7 @@ binds {
     Mod+T { spawn "ghostty"; }
     Mod+D { spawn "fuzzel"; }
     Mod+Alt+L { spawn "swaylock"; }
+    Mod+Shift+P { spawn "power-menu"; }
 
     Mod+Q { close-window; }
     Mod+O repeat=false { toggle-overview; }
