@@ -4,6 +4,9 @@
   ...
 }:
 
+let
+  palette = import ./palette.nix;
+in
 {
   imports = [
     ./ship.nix
@@ -11,25 +14,19 @@
   ];
   home.stateVersion = "26.05";
   home.packages = with pkgs; [
-    ripgrep
-    fd
-    btop
-    eza
-    bat
     wl-clipboard
-    jq
     devenv
     unstable.mold
     nil
     nixd
     spotify-spotx
-    gh
     helium
 
     # nix tooling (awesome-nix)
     nixfmt
     statix
     deadnix
+    nix-update
     nix-tree # browse the dependency graph of a derivation
     nix-du # see which gc roots eat disk space
     nix-melt # flake.lock viewer
@@ -60,9 +57,9 @@
   services.mako = {
     enable = true;
     settings = {
-      background-color = "#2B2930";
-      text-color = "#E6E0E9";
-      border-color = "#d98cb3";
+      background-color = "#${palette.mako-bg}";
+      text-color = "#${palette.mako-fg}";
+      border-color = "#${palette.accent}";
       border-size = 2;
       border-radius = 12;
       font = "Roboto 11";
@@ -89,6 +86,11 @@
   };
 
   programs = {
+    ghostty = {
+      enable = true;
+      enableBashIntegration = true;
+    };
+    nix-search-tv.enable = true;
     nix-init.enable = true;
     keepassxc.enable = true;
     vesktop = {
@@ -183,9 +185,6 @@
       commandLineArgs = [
         "--ozone-platform-hint=auto"
         "--enable-features=TouchpadOverscrollHistoryNavigation"
-      ];
-      extensions = [
-        { id = "nngceckbapebfimnlniiiahkandclblb"; } # bitwarden
       ];
     };
 

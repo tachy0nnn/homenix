@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 
 let
   hasIPv6Internet = false;
@@ -8,8 +8,9 @@ in
   networking.hostName = "nixos";
   networking.nameservers = [
     "127.0.0.1"
-    "::1"
-  ];
+  ]
+  ++ lib.optional hasIPv6Internet "::1";
+
   networking.networkmanager = {
     enable = true;
     dns = "none";
@@ -39,7 +40,6 @@ in
       };
     };
   };
-  systemd.services.dnscrypt-proxy.serviceConfig.StateDirectory = StateDirectory;
 
   boot.kernelModules = [
     "tcp_bbr"
@@ -52,7 +52,7 @@ in
 
     # bbr
     "net.core.default_qdisc" = "fq";
-    "net.ipv4.tcp_congestion_control" = "cubic";
+    "net.ipv4.tcp_congestion_control" = "bbr";
 
     # ref: https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency
     "net.ipv4.tcp_notsent_lowat" = 131072;
@@ -69,11 +69,6 @@ in
   networking.firewall = {
     enable = true;
     checkReversePath = "loose";
-    # these interfaces bypass the firewall completely; prefer opening specific ports
-    trustedInterfaces = [
-      "Meta"
-      "radminvpn0"
-    ];
   };
 
   programs.clash-verge = {

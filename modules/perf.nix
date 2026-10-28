@@ -1,10 +1,8 @@
-# performance tuning, opt-in, revised after the first profile report.
+# performance tuning module (imported in configuration.nix).
 #
-# not imported anywhere. to try it:
-#   1. copy this file to modules/perf.nix in homenix
-#   2. add ./modules/perf.nix to the imports list in configuration.nix
-#   3. nh os build, then check the diff with: dix /run/current-system result
-#   4. nh os switch only if the build looks right
+# workflow to test changes:
+#   1. nh os build (automatically prints the closure diff via dix)
+#   2. nh os switch only if the build and diff look right
 #
 # what changed from the first draft, and why:
 #   - vm.swappiness is gone. the report showed 16 GiB available, memory
@@ -13,9 +11,9 @@
 #     more. add it back only if a specific title reports the limit.
 #   - the nix build priority stays, because io pressure is the main problem
 #     in the report and background builds are a real source of io.
-#   - the NetworkManager wait-online delay is new, for boot time.
+#   - the NetworkManager wait-online delay is disabled for faster boot time.
 
-{ ... }:
+_:
 
 {
   # no periodic nmi watchdog wakeups. a small idle-power saving, no downside
@@ -26,8 +24,8 @@
   # priority. the report shows io pressure around 85 percent, so keeping
   # background builds from competing with the desktop matters here.
   # note: the io priority only has effect with the bfq io scheduler. the nvme
-  # drive currently uses kyber, which largely ignores it [unverified]. the cpu
-  # priority still applies either way.
+  # drive currently uses kyber, which largely ignores it. the cpu priority
+  # still applies either way.
   nix.daemonCPUSchedPolicy = "idle";
   nix.daemonIOSchedClass = "idle";
 

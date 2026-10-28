@@ -9,6 +9,12 @@
     ];
   };
 
+  environment.sessionVariables = {
+    LIBVA_DRIVER_NAME = "nvidia";
+    NVD_BACKEND = "direct";
+    # MOZ_DISABLE_RDD_SANDBOX = "1";
+  };
+
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;

@@ -1,5 +1,31 @@
 { pkgs, ... }:
 
+let
+  palette = import ./palette.nix;
+
+  niriConfigText =
+    builtins.replaceStrings
+      [ "@accent@" "@border-inactive@" "@bg-overlay@" "@bg@" ]
+      [
+        "#${palette.accent}"
+        "#${palette.border-inactive}"
+        "#${palette.bg-overlay}"
+        "#${palette.bg}"
+      ]
+      (builtins.readFile ./niri/config.kdl);
+
+  niriConfigFile = pkgs.writeText "niri-config.kdl" niriConfigText;
+
+  validatedNiriConfig =
+    pkgs.runCommand "niri-config.kdl"
+      {
+        nativeBuildInputs = [ pkgs.niri ];
+      }
+      ''
+        niri validate --config ${niriConfigFile}
+        cp ${niriConfigFile} $out
+      '';
+in
 {
   home.packages = with pkgs; [
     swaybg
@@ -8,7 +34,18 @@
 
   fonts.fontconfig.enable = true;
 
-  xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+  xdg.configFile."niri/config.kdl".source = validatedNiriConfig;
+
+  # lock screen automatically before system suspend (s2idle)
+  services.swayidle = {
+    enable = true;
+    events = [
+      {
+        event = "before-sleep";
+        command = "${pkgs.swaylock}/bin/swaylock -f";
+      }
+    ];
+  };
 
   # slim top bar: workspaces left, clock center, tray and volume right
   programs.waybar = {
@@ -57,36 +94,36 @@
       }
 
       window#waybar {
-        background: #1a1625;
-        color: #cac4d0;
+        background: #${palette.bg};
+        color: #${palette.fg};
       }
 
       #workspaces button {
-        color: #6e6780;
+        color: #${palette.fg-muted};
         background: transparent;
         padding: 0 8px;
       }
 
       #workspaces button:hover {
-        color: #cac4d0;
+        color: #${palette.fg};
       }
 
       #workspaces button.active {
-        color: #d98cb3;
+        color: #${palette.accent};
       }
 
       #clock {
-        color: #e6d9f0;
+        color: #${palette.fg-bright};
       }
 
       #pulseaudio,
       #tray {
-        color: #cac4d0;
+        color: #${palette.fg};
         padding: 0 10px;
       }
 
       #pulseaudio.muted {
-        color: #6e6780;
+        color: #${palette.fg-muted};
       }
     '';
   };
@@ -100,13 +137,13 @@
         width = 30;
       };
       colors = {
-        background = "1a1625f2";
-        text = "e6d9f0ff";
-        match = "d98cb3ff";
-        selection = "2f2840ff";
-        selection-text = "e6d9f0ff";
-        selection-match = "d98cb3ff";
-        border = "d98cb3ff";
+        background = "${palette.bg}f2";
+        text = "${palette.fg-bright}ff";
+        match = "${palette.accent}ff";
+        selection = "${palette.bg-selection}ff";
+        selection-text = "${palette.fg-bright}ff";
+        selection-match = "${palette.accent}ff";
+        border = "${palette.accent}ff";
       };
       border = {
         width = 2;
@@ -118,12 +155,12 @@
   programs.swaylock = {
     enable = true;
     settings = {
-      color = "1a1625";
-      inside-color = "2a2438";
-      ring-color = "d98cb3";
-      key-hl-color = "9d86c9";
+      color = palette.bg;
+      inside-color = palette.bg-lock;
+      ring-color = palette.accent;
+      key-hl-color = palette.accent-alt;
       line-color = "00000000";
-      text-color = "e6d9f0";
+      text-color = palette.fg-bright;
       show-failed-attempts = true;
     };
   };

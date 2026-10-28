@@ -4,9 +4,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    helium.url = "path:./pkgs/helium";
-    helium.inputs.nixpkgs.follows = "nixpkgs";
-    quasar-unlock.url = "github:otomir23/quasar-unlock";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -60,7 +57,6 @@
       niri,
       treefmt-nix,
       git-hooks,
-      quasar-unlock,
       ...
     }@inputs:
     let
@@ -70,6 +66,10 @@
           inherit system;
           config.allowUnfree = true;
         };
+      };
+      overlay-local = final: _prev: {
+        helium = final.callPackage ./pkgs/helium/package.nix { };
+        syncthing = final.callPackage ./pkgs/syncthing/package.nix { };
       };
 
       # tooling for working on this repo
@@ -91,11 +91,10 @@
           {
             nixpkgs.overlays = [
               overlay-unstable
+              overlay-local
               inputs.spotx-nix.overlays.default
-              inputs.helium.overlays.default
             ];
           }
-          quasar-unlock.nixosModules.default
           niri.nixosModules.niri
 
           ./configuration.nix
@@ -112,6 +111,12 @@
         ];
       };
 
+      # expose custom packages so `nix-update --flake helium` and `nix-update --flake syncthing` work
+      packages.${system} = {
+        helium = pkgs.callPackage ./pkgs/helium/package.nix { };
+        syncthing = pkgs.callPackage ./pkgs/syncthing/package.nix { };
+      };
+
       # nix fmt formats the whole repo, nix flake check verifies formatting
       formatter.${system} = treefmtEval.config.build.wrapper;
       checks.${system}.formatting = treefmtEval.config.build.check self;
@@ -124,6 +129,7 @@
           pkgs.statix
           pkgs.deadnix
           pkgs.nixfmt
+          pkgs.nix-update
           pkgs.nix-tree
           pkgs.nix-du
           pkgs.nix-melt

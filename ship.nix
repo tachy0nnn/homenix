@@ -27,6 +27,11 @@ let
       start=$(git branch --show-current)
 
       if [ "$start" = main ]; then
+        # branch from origin/main: fast-forward local main first; stop if it has diverged
+        git merge --quiet --ff-only origin/main || {
+            echo "local main can't fast-forward to origin/main; resolve by hand" >&2
+            exit 1
+        }
         branch="ship/$(date +%m%d-%H%M%S)"
         git switch --quiet --create "$branch"
       else

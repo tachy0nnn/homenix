@@ -84,6 +84,7 @@
   boot.initrd.luks.devices."luks-a6b83008-28c3-411a-95c4-6518d6449435".allowDiscards = true;
   services.fstrim.enable = true;
   services.fwupd.enable = true;
+  services.smartd.enable = true;
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -102,6 +103,8 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "gamemode"
+      "plugdev"
     ];
     homeMode = "711";
   };
@@ -116,6 +119,7 @@
     };
   };
 
+  services.angrr.enable = true;
   nixpkgs.config.allowUnfree = true;
   nix.settings = {
     experimental-features = [

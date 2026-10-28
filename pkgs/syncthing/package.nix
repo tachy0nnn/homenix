@@ -28,10 +28,10 @@ buildGoModule (finalAttrs: {
     owner = "syncthing";
     repo = "syncthing";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-uTjmOAjis2eBm2SnZbyvDDiQXKN8De+DhjNHbFLLbn0=";
+    hash = "sha256-XJqXWzZ0gePbrXeMpCgwXhYN1Lqco16wmEESJDAhFiA=";
   };
 
-  vendorHash = "sha256-ueUf9YEa5z7mG6MofIJ3Xco+PxVPi/85Rdi+1aean6c=";
+  vendorHash = "sha256-gLbRwLPldH4GRuDu8nmZagBfFzg3FZ7Rpa2nDBRWcZo=";
 
   nativeBuildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
     # Recent versions of macOS seem to require binaries to be signed when
@@ -84,7 +84,7 @@ buildGoModule (finalAttrs: {
     install -Dm644 assets/logo-only.svg $out/share/icons/hicolor/scalable/apps/syncthing.svg
 
   ''
-  + lib.optionalString (stdenv.hostPlatform.isLinux) ''
+  + lib.optionalString stdenv.hostPlatform.isLinux ''
     mkdir -p $out/lib/systemd/{system,user}
 
     substitute etc/linux-systemd/system/syncthing@.service \
@@ -100,14 +100,12 @@ buildGoModule (finalAttrs: {
     tests = {
       inherit (nixosTests)
         syncthing
-        syncthing-defaults
         syncthing-folders
         syncthing-guiPassword
         syncthing-guiPasswordFile
         syncthing-init
         syncthing-many-devices
         syncthing-no-settings
-        syncthing-private-relay
         syncthing-relay
         ;
     };

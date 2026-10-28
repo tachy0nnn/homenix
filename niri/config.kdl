@@ -28,13 +28,13 @@ layout {
 
     focus-ring {
         width 2
-        active-color "#d98cb3"
-        inactive-color "#3a3347"
+        active-color "@accent@"
+        inactive-color "@border-inactive@"
     }
 }
 
 overview {
-    backdrop-color "#14101c"
+    backdrop-color "@bg-overlay@"
 }
 
 prefer-no-csd
@@ -45,7 +45,7 @@ environment {
     NIXOS_OZONE_WL "1"
 }
 
-spawn-at-startup "swaybg" "-c" "#1a1625"
+spawn-at-startup "swaybg" "-c" "@bg@"
 
 window-rule {
     geometry-corner-radius 12

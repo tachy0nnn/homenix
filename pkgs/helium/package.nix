@@ -4,6 +4,7 @@
   fetchurl,
   autoPatchelfHook,
   makeWrapper,
+  nix-update-script,
   glib,
   nss,
   nspr,
@@ -14,6 +15,7 @@
   cups,
   expat,
   libxkbcommon,
+  wayland,
   alsa-lib,
   mesa,
   libglvnd,
@@ -50,6 +52,7 @@ let
     cups
     expat
     libxkbcommon
+    wayland
     alsa-lib
     mesa
     libglvnd
@@ -110,18 +113,28 @@ stdenv.mkDerivation {
     mkdir -p $out/bin $out/share/helium
     cp -a . $out/share/helium/
 
-    # mirrors the upstream helium-wrapper script, but points at the nix store
-    # and adds /run/opengl-driver/lib so GPU drivers (e.g. nvidia) are found
+    # # mirrors the upstream helium-wrapper script, but points at the nix store
+    # # and adds /run/opengl-driver/lib so GPU drivers (e.g. nvidia) are found
+    # makeWrapper $out/share/helium/helium $out/bin/helium \
+    #   --set CHROME_WRAPPER $out/bin/helium \
+    #   --set CHROME_VERSION_EXTRA nixos \
+    #   --prefix LD_LIBRARY_PATH : "$out/share/helium:/run/opengl-driver/lib:${lib.makeLibraryPath runtimeLibs}"
+
+    # mirrors the upstream helium-wrapper script, points at the nix store,
+    # adds /run/opengl-driver/lib for GPU drivers, and honors NIXOS_OZONE_WL
     makeWrapper $out/share/helium/helium $out/bin/helium \
-      --set CHROME_WRAPPER $out/bin/helium \
-      --set CHROME_VERSION_EXTRA nixos \
-      --prefix LD_LIBRARY_PATH : "$out/share/helium:/run/opengl-driver/lib:${lib.makeLibraryPath runtimeLibs}"
+        --set CHROME_WRAPPER $out/bin/helium \
+        --set CHROME_VERSION_EXTRA nixos \
+        --prefix LD_LIBRARY_PATH : "$out/share/helium:/run/opengl-driver/lib:${lib.makeLibraryPath runtimeLibs}" \
+        --add-flags "\''${NIXOS_OZONE_WL:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}"
 
     install -Dm644 helium.desktop $out/share/applications/helium.desktop
     install -Dm644 product_logo_256.png $out/share/icons/hicolor/256x256/apps/helium.png
 
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Helium Browser for Linux (repackaged upstream release)";

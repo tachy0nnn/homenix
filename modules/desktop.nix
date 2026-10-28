@@ -1,30 +1,71 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
+let
+  bravePolicies = {
+    "WebRtcIPHandling" = "disable_non_proxied_udp";
+    "NetworkPredictionOptions" = 2;
+    "DNSInterceptionChecksEnabled" = false;
+    "BraveAIChatEnabled" = false;
+    "BraveLocalAIEnabled" = false;
+    "BraveRewardsDisabled" = true;
+    "BraveWalletDisabled" = true;
+    "BraveTalkDisabled" = true;
+    "BraveVPNDisabled" = true;
+    "BraveNewsDisabled" = true;
+    "TorDisabled" = true;
+    "BraveP3AEnabled" = false;
+    "BraveStatsPingEnabled" = false;
+    "BraveWebDiscoveryEnabled" = false;
+    "BraveDeAmpEnabled" = true;
+    "BraveDebouncingEnabled" = true;
+    "BraveTrackingQueryParametersFilteringEnabled" = true;
+    "BraveGlobalPrivacyControlEnabled" = true;
+    "BraveReduceLanguageEnabled" = true;
+    "MetricsReportingEnabled" = false;
+    "UrlKeyedAnonymizedDataCollectionEnabled" = false;
+    "SafeBrowsingExtendedReportingEnabled" = false;
+    "SpellCheckServiceEnabled" = false;
+    "ChromeVariations" = 1;
+    "BlockThirdPartyCookies" = true;
+    "BrowserSignin" = 0;
+    "SyncDisabled" = true;
+    "BackgroundModeEnabled" = false;
+    "BlockExternalExtensions" = true;
+    "ExtensionInstallForcelist" = [
+      "nngceckbapebfimnlniiiahkandclblb;https://clients2.google.com/service/update2/crx" # bitwarden
+    ];
+    "DefaultBrowserSettingEnabled" = false;
+    "ShoppingListEnabled" = false;
+    "AlternateErrorPagesEnabled" = false;
+    "BasicAuthOverHttpEnabled" = false;
+    "PaymentMethodQueryEnabled" = false;
+    "AutofillCreditCardEnabled" = false;
+  };
+in
 {
   programs.niri.enable = true;
   programs.steam.enable = true;
   environment.systemPackages = with pkgs; [
     xwayland-satellite
-    ghostty # mod + t
   ];
 
-  # lets swaylock (installed by home-manager) verify your password
   security.pam.services.swaylock = { };
-
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   services.syncthing = {
     enable = true;
-    package = pkgs.callPackage ../pkgs/syncthing/package.nix { };
+    package = pkgs.syncthing;
     user = "yon";
     group = "users";
     dataDir = "/home/yon";
     configDir = "/home/yon/.config/syncthing";
     openDefaultPorts = true;
+    overrideDevices = false;
+    overrideFolders = false;
   };
 
   environment.gnome.excludePackages = with pkgs; [
-    gnome-contacts # Contactsz
+    gnome-contacts # Contacts
     gnome-weather # Weather
     gnome-clocks # Clocks
     gnome-maps # Maps
@@ -75,65 +116,6 @@
     pulse.enable = true;
   };
 
-  # systemd.services.sober-proxy-override = {
-  #   description = "proxy environment for org.vinegarhq.Sober";
-  #   wantedBy = [ "multi-user.target" ];
-  #   after = [ "network.target" ];
-  #   serviceConfig = {
-  #     Type = "oneshot";
-  #     RemainAfterExit = true;
-  #     ExecStart = ''
-  #       ${pkgs.flatpak}/bin/flatpak override --system \
-  #         --env=ALL_PROXY=socks5h://127.0.0.1:7897 \
-  #         --env=all_proxy=socks5h://127.0.0.1:7897 \
-  #         org.vinegarhq.Sober
-  #     '';
-  #   };
-  # };
-
-  programs.chromium = {
-    enable = true;
-    extraOpts = {
-      #"DnsOverHttpsMode" = "off";
-      "WebRtcIPHandling" = "disable_non_proxied_udp";
-      "NetworkPredictionOptions" = 2;
-      "DNSInterceptionChecksEnabled" = false;
-      "BraveAIChatEnabled" = false;
-      "BraveLocalAIEnabled" = false;
-      "BraveRewardsDisabled" = true;
-      "BraveWalletDisabled" = true;
-      "BraveTalkDisabled" = true;
-      "BraveVPNDisabled" = true;
-      "BraveNewsDisabled" = true;
-      "TorDisabled" = true;
-      "BraveP3AEnabled" = false;
-      "BraveStatsPingEnabled" = false;
-      "BraveWebDiscoveryEnabled" = false;
-      "BraveDeAmpEnabled" = true;
-      "BraveDebouncingEnabled" = true;
-      "BraveTrackingQueryParametersFilteringEnabled" = true;
-      "BraveGlobalPrivacyControlEnabled" = true;
-      "BraveReduceLanguageEnabled" = true;
-      "MetricsReportingEnabled" = false;
-      "UrlKeyedAnonymizedDataCollectionEnabled" = false;
-      "SafeBrowsingExtendedReportingEnabled" = false;
-      "SpellCheckServiceEnabled" = false;
-      "ChromeVariations" = 1;
-      "BlockThirdPartyCookies" = true;
-      "BrowserSignin" = 0;
-      "SyncDisabled" = true;
-      "BackgroundModeEnabled" = false;
-      "BlockExternalExtensions" = true;
-      "DefaultBrowserSettingEnabled" = false;
-      "ShoppingListEnabled" = false;
-      "AlternateErrorPagesEnabled" = false;
-      "BasicAuthOverHttpEnabled" = false;
-      "PaymentMethodQueryEnabled" = false;
-      "AutofillCreditCardEnabled" = false;
-    };
-  };
-
-  # brave reads managed policies from /etc/brave, not /etc/chromium
-  environment.etc."brave/policies/managed/policy.json".text =
-    builtins.toJSON config.programs.chromium.extraOpts;
+  # brave reads managed policies from /etc/brave/policies/managed
+  environment.etc."brave/policies/managed/policy.json".text = builtins.toJSON bravePolicies;
 }
